@@ -3,7 +3,7 @@ port: 7880
 rtc:
   port_range_start: 7882
   port_range_end: 7882
-  # use_tcp: true
+  # use_tcp: trugit remote add origin https://github.com/Amirhosein-hshm/meet.gite
   tcp_port: 7882
   udp_port: 7882
 
