@@ -3,12 +3,12 @@ port: 7880
 rtc:
   port_range_start: 7882
   port_range_end: 7882
-  use_tcp: true
+  # use_tcp: true
   tcp_port: 7882
   udp_port: 7882
 
 keys:
-  devkey: devsecret
+  devkey: my-super-secret-livekit-key-which-is-long-enough
 
 logging:
   level: info

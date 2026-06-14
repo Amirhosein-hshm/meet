@@ -141,11 +141,11 @@ _Implementation rule:_ Apply the filtering logic at the repository query level t
 
 All API responses MUST use the generic envelopes from `presentation/dto/base_dto.py`:
 
-| Endpoint Type | Envelope | Fields |
-|---------------|----------|--------|
-| **Mutations** (POST, PUT, PATCH, DELETE) | `MutationResponseDTO[T]` | `data: T`, `message: str`, `detail: Optional[str]` |
-| **Single Item GET** | `SingleResponseDTO[T]` | `data: T`, `permissions: list[str]`, `detail: Optional[str]` |
-| **Paginated List GET** | `PaginatedResponseDTO[T]` | `data: list[T]`, `total: int`, `current_page: int`, `pages: int`, `is_next: bool`, `is_prev: bool`, `size: int`, `permissions: list[str]`, `detail: Optional[str]` |
+| Endpoint Type                            | Envelope                  | Fields                                                                                                                                                             |
+| ---------------------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Mutations** (POST, PUT, PATCH, DELETE) | `MutationResponseDTO[T]`  | `data: T`, `message: str`, `detail: Optional[str]`                                                                                                                 |
+| **Single Item GET**                      | `SingleResponseDTO[T]`    | `data: T`, `permissions: list[str]`, `detail: Optional[str]`                                                                                                       |
+| **Paginated List GET**                   | `PaginatedResponseDTO[T]` | `data: list[T]`, `total: int`, `current_page: int`, `pages: int`, `is_next: bool`, `is_prev: bool`, `size: int`, `permissions: list[str]`, `detail: Optional[str]` |
 
 _Implementation rule:_ The UseCase returns raw domain output. The `Presenter` maps this output into the correct generic envelope. Never return raw lists or bare objects from endpoints.
 
@@ -163,17 +163,17 @@ LiveKit is the WebRTC media server powering all real-time audio/video streaming.
 
 ## Commands
 
-| Action               | Command                                                   |
-| -------------------- | --------------------------------------------------------- |
-| Build & start stack  | `docker-compose up -d --build`                            |
-| Stop stack           | `docker-compose down`                                     |
-| View api logs        | `docker-compose logs -f api`                              |
-| Shell into api       | `docker-compose exec api /bin/sh`                         |
+| Action               | Command                                                                    |
+| -------------------- | -------------------------------------------------------------------------- |
+| Build & start stack  | `docker-compose up -d --build`                                             |
+| Stop stack           | `docker-compose down`                                                      |
+| View api logs        | `docker-compose logs -f api`                                               |
+| Shell into api       | `docker-compose exec api /bin/sh`                                          |
 | Create migration     | `docker-compose exec api alembic revision --autogenerate -m "description"` |
-| Apply migrations     | `docker-compose exec api alembic upgrade head`             |
-| Rollback one         | `docker-compose exec api alembic downgrade -1`             |
-| Run server (local)   | `uvicorn main:app --reload`                               |
-| Install deps (local) | `pip install -r requirements.txt`                         |
+| Apply migrations     | `docker-compose exec api alembic upgrade head`                             |
+| Rollback one         | `docker-compose exec api alembic downgrade -1`                             |
+| Run server (local)   | `uvicorn main:app --reload`                                                |
+| Install deps (local) | `pip install -r requirements.txt`                                          |
 
 ## Common Pitfalls (AI Assistant Checklist)
 
