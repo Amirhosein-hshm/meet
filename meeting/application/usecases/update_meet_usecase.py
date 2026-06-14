@@ -61,6 +61,8 @@ class UpdateMeetUseCase:
             target_user = self.user_repository.find_by_username(request.assign_to_username)
             if not target_user:
                 raise InvalidParticipantError(f"Target creator '{request.assign_to_username}' not found.")
+            if target_user.role not in [Role.Host, Role.Admin, Role.SuperAdmin]:
+                raise InvalidParticipantError("Target creator must have a role of Host, Admin, or SuperAdmin.")
             target_creator = target_user
 
         is_reassigning = target_creator.id != meet.creator_id if request.assign_to_username else False
