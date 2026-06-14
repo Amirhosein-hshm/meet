@@ -40,7 +40,6 @@ class CreateMeetUseCase:
         self.user_repository = user_repository
 
     def execute(self, request: CreateMeetRequestInput) -> CreateMeetResponseOutput:
-        # ۱. پیدا کردن شخصی که درخواست را ارسال کرده (Actor)
         actor = self.user_repository.find_by_id(request.actor_id)
         if not actor:
             raise UnauthorizedRoleError("Authenticated user not found.")
@@ -50,6 +49,8 @@ class CreateMeetUseCase:
             target_user = self.user_repository.find_by_username(request.assign_to_username)
             if not target_user:
                 raise InvalidParticipantError(f"Target creator '{request.assign_to_username}' not found.")
+            if target_user.role not in [Role.Host, Role.Admin, Role.SuperAdmin]:
+                raise InvalidParticipantError("Target creator must have a role of Host, Admin, or SuperAdmin.")
             target_creator = target_user
 
         
