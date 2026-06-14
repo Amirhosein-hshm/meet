@@ -18,9 +18,10 @@ class PostgresRefreshTokenRepository(IRefreshTokenRepository):
         ).first()
         return db_token is not None
 
-    def revoke(self, user_id: int, token: str) -> None:
-        self.db_session.query(RefreshTokenModel).filter(
+    def revoke(self, user_id: int, token: str) -> bool:
+        result = self.db_session.query(RefreshTokenModel).filter(
             RefreshTokenModel.user_id == user_id,
             RefreshTokenModel.token == token
         ).delete(synchronize_session=False)
         self.db_session.commit()
+        return result > 0  

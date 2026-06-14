@@ -39,7 +39,7 @@ class CreateMeetUseCase:
         self.meet_repository = meet_repository
         self.user_repository = user_repository
 
-def execute(self, request: CreateMeetRequestInput) -> CreateMeetResponseOutput:
+    def execute(self, request: CreateMeetRequestInput) -> CreateMeetResponseOutput:
         # ۱. پیدا کردن شخصی که درخواست را ارسال کرده (Actor)
         actor = self.user_repository.find_by_id(request.actor_id)
         if not actor:

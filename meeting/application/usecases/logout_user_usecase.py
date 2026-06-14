@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from domain.repository_interface.refresh_token_repository_interface import IRefreshTokenRepository
+from domain.exceptions.base_exceptions import ResourceNotFoundError
 
 @dataclass
 class LogoutRequestInput:
@@ -12,5 +13,9 @@ class LogoutUseCase:
         self.refresh_token_repository = refresh_token_repository
 
     def execute(self, input_data: LogoutRequestInput) -> bool:
-        self.refresh_token_repository.revoke(input_data.user_id, input_data.refresh_token)
+        success = self.refresh_token_repository.revoke(input_data.user_id, input_data.refresh_token)
+    
+        if not success:
+            raise ResourceNotFoundError("Invalid refresh token or already revoked")
+        
         return True

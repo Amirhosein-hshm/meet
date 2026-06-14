@@ -23,6 +23,8 @@ class MeetPresenter:
             expires_at=dto.expires_at,
             creator_id=dto.creator_id,
         )
+
+        print(f"Formatted CreateMeetResponseOutput: {data}")
         return MutationResponseDTO(
             data=data,
             message="Meeting created successfully.",

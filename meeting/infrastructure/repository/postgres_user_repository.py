@@ -43,6 +43,25 @@ class PostgresUserRepository(IUserRepository):
             created_at=db_user.created_at,
             update_at=db_user.update_at
         )
+
+
+    def find_by_email(self, email: str) -> User | None:
+        db_user = self.db_session.query(UserModel).filter(UserModel.email == email).first()
+        if not db_user:
+            return None
+        return User(
+            id=db_user.id,
+            first_name=db_user.first_name,
+            last_name=db_user.last_name,
+            username=db_user.username,
+            email=db_user.email,
+            password_hash=db_user.password_hash,
+            role=db_user.role,
+            is_active=db_user.is_active,
+            created_at=db_user.created_at,
+            update_at=db_user.update_at
+        )
+    
     def find_by_id(self, user_id: int) -> User | None:
         db_user = self.db_session.query(UserModel).filter(UserModel.id == user_id).first()
         if not db_user:

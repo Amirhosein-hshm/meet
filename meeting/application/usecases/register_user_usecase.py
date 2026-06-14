@@ -46,6 +46,10 @@ class RegisterUserUseCase:
         if existing_user:
             raise ConflictError("Username already in use")
 
+        existing_user = self.user_repository.find_by_email(request.email)
+        if existing_user:
+            raise ConflictError("Email already in use")
+
         # 2. Hash password
         hashed_password = self.password_hasher.hash_password(request.password)
 
