@@ -1,0 +1,56 @@
+services:
+  api:
+    build: ./meeting
+    ports:
+      - "8000:8000"
+    env_file: ./meeting/.env
+    environment:
+      - DATABASE_URL=postgresql://multimeet:secret@db:5432/multimeet
+      - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
+      - LIVEKIT_API_KEY=${LIVEKIT_API_KEY:-devkey}
+      - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET:-devsecret}
+      - LIVEKIT_URL=ws://livekit:7880
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - meet-network
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=multimeet
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=multimeet
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U multimeet -d multimeet"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+    networks:
+      - meet-network
+    restart: unless-stopped
+
+  livekit:
+    image: livekit/livekit-server:latest
+    command: --config /etc/livekit/livekit.yaml
+    ports:
+      - "7880:7880"
+      - "7882:7882"
+    volumes:
+      - ./livekit.yaml:/etc/livekit/livekit.yaml:ro
+    networks:
+      - meet-network
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+
+networks:
+  meet-network:
+    driver: bridge
