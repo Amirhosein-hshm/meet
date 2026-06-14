@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 from fastapi import Request
 
 from domain.exceptions.base_exceptions import BaseAppException
+from infrastructure.database import Base, engine
 from presentation.dto.base_dto import ErrorResponseDTO
 from presentation.router.user_router import router as user_router
 from presentation.router.meet_router import router as meet_router
@@ -15,6 +16,8 @@ app = FastAPI(
     description="Clean Architecture implementation with FastAPI",
     version="1.0.0",
 )
+
+Base.metadata.create_all(bind=engine)
 
 app.include_router(user_router)
 app.include_router(meet_router)
