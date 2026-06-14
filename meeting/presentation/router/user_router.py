@@ -12,7 +12,11 @@ from application.usecases.list_user_managed_meets_usecase import ListUserManaged
 from presentation.dto.refresh_token_dto import RefreshTokenRequestDTO
 from presentation.dto.register_user_dto import RegisterRequestDTO
 from presentation.dto.meet_dto import PaginatedUserMeetsQueryDTO, MeetListItemData
-from presentation.dto.base_dto import PaginatedResponseDTO
+from presentation.dto.base_dto import MutationResponseDTO, PaginatedResponseDTO
+from presentation.dto.register_user_dto import RegisterResponseDTO
+from presentation.dto.login_user_dto import LoginResponseDTO
+from presentation.dto.get_user_dto import GetMeResponseDTO
+from presentation.dto.refresh_token_dto import RefreshTokenResponseDTO
 from presentation.presenter.user_presenter import UserPresenter
 from presentation.presenter.meet_presenter import MeetPresenter
 from presentation.dependencies.auth_stub import get_current_user_stub
@@ -25,8 +29,9 @@ def get_register_use_case_stub() -> RegisterUserUseCase:
     raise NotImplementedError("This dependency must be overridden by the Composition Root.")
 
 
-@router.post("/register")
+@router.post("/register", response_model=MutationResponseDTO[RegisterResponseDTO])
 def register_user(
+
     request: RegisterRequestDTO,
     use_case: RegisterUserUseCase = Depends(get_register_use_case_stub),
 ):
@@ -46,7 +51,7 @@ def get_login_use_case_stub() -> LoginUseCase:
     raise NotImplementedError("This dependency must be overridden by the Composition Root.")
 
 
-@router.post("/login")
+@router.post("/login", response_model=LoginResponseDTO)
 def login_user(
     form_data: OAuth2PasswordRequestForm = Depends(),
     use_case: LoginUseCase = Depends(get_login_use_case_stub),
@@ -64,7 +69,7 @@ def get_me_use_case_stub() -> GetMeUseCase:
     raise NotImplementedError("This dependency must be overridden by the Composition Root.")
 
 
-@router.get("/me")
+@router.get("/me", response_model=MutationResponseDTO[GetMeResponseDTO])
 def get_current_user_profile(
     current_user: User = Depends(get_current_user_stub),
     use_case: GetMeUseCase = Depends(get_me_use_case_stub),
@@ -78,7 +83,7 @@ def get_refresh_token_use_case_stub() -> RefreshTokenUseCase:
     raise NotImplementedError("This dependency must be overridden by the Composition Root.")
 
 
-@router.post("/refresh")
+@router.post("/refresh", response_model=RefreshTokenResponseDTO)
 def refresh_token(
     request: RefreshTokenRequestDTO,
     use_case: RefreshTokenUseCase = Depends(get_refresh_token_use_case_stub),

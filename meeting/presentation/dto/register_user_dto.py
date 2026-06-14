@@ -16,4 +16,3 @@ class RegisterResponseDTO(BaseModel):
     username: str
     role: str
     is_active: bool
-    message: str
