@@ -7,8 +7,10 @@ from infrastructure.database import Base, engine
 from presentation.dto.base_dto import ErrorResponseDTO
 from presentation.router.user_router import router as user_router
 from presentation.router.meet_router import router as meet_router
+from presentation.router.livekit_router import router as livekit_router
 from infrastructure.provider.user_provider import register_user_di
 from infrastructure.provider.meet_provider import register_meet_di
+from infrastructure.provider.livekit_provider import register_livekit_di
 
 
 app = FastAPI(
@@ -21,8 +23,10 @@ Base.metadata.create_all(bind=engine)
 
 app.include_router(user_router)
 app.include_router(meet_router)
+app.include_router(livekit_router)
 register_user_di(app)
 register_meet_di(app)
+register_livekit_di(app)
 
 
 @app.exception_handler(BaseAppException)
