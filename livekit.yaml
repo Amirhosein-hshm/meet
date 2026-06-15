@@ -1,11 +1,11 @@
 port: 7880
 
 rtc:
-  port_range_start: 7882
-  port_range_end: 7882
-  # use_tcp: trugit remote add origin https://github.com/Amirhosein-hshm/meet.gite
-  tcp_port: 7882
+  port_range_start: 50000
+  port_range_end: 50050
+  tcp_port: 7881
   udp_port: 7882
+  use_external_ip: false
 
 keys:
   devkey: my-super-secret-livekit-key-which-is-long-enough

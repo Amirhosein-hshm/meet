@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   api:
     build: ./meeting
@@ -8,8 +10,8 @@ services:
       - DATABASE_URL=postgresql://multimeet:secret@db:5432/multimeet
       - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
       - LIVEKIT_API_KEY=${LIVEKIT_API_KEY:-devkey}
-      - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET:-devsecret}
-      - LIVEKIT_URL=ws://livekit:7880
+      - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET:-my-super-secret-livekit-key-which-is-long-enough}
+      - LIVEKIT_URL=http://livekit:7880
     depends_on:
       db:
         condition: service_healthy
@@ -41,7 +43,10 @@ services:
     command: --config /etc/livekit/livekit.yaml
     ports:
       - "7880:7880"
-      - "7882:7882"
+      - "7881:7881"
+      - "7882:7882/udp"
+      # مپ کردن پورت‌های مدیا برای ارتباط WebRTC کلاینت‌ها
+      - "50000-50050:50000-50050/udp"
     volumes:
       - ./livekit.yaml:/etc/livekit/livekit.yaml:ro
     networks:
