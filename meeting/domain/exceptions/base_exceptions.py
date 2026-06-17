@@ -33,8 +33,3 @@ class ResourceNotFoundError(BaseAppException):
 class ConflictError(BaseAppException):
     def __init__(self, message: str = "Conflict with existing data."):
         super().__init__(message=message, error_code="CONFLICT")
-
-
-class UserBannedError(BaseAppException):
-    def __init__(self, message: str = "You have been banned from this meeting."):
-        super().__init__(message=message, error_code="FORBIDDEN_ACTION")

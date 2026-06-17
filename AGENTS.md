@@ -179,45 +179,32 @@ LiveKit is the WebRTC media server powering all real-time audio/video streaming.
 
 Real-time room interactions (leaving, kicking, listing active participants) are handled **directly** between the LiveKit Client SDK and the LiveKit Server — FastAPI never proxies WebRTC traffic.
 
-#### A. `is_banned` Flag
-
-- Stored on `MeetParticipantModel.is_banned` (Boolean, default `False`).
-- Set via `POST /meets/{meet_hash}/ban/{user_id}`.
-- Checked by `GenerateLiveKitTokenUseCase` before issuing a join token — banned users receive a `403 Forbidden`.
-
-#### B. roomAdmin Grant (Host-Only)
+#### A. roomAdmin Grant (Host-Only)
 
 - The **meet creator** (`creator_id == actor_id`) receives a LiveKit `AccessToken` with `roomAdmin=True`.
 - This enables the frontend to call LiveKit Client SDK methods (e.g., `Room.localParticipant.setTrackSubscriptionPermissions`, `Room.disconnectParticipant`) without proxying through FastAPI.
 - Regular participants receive standard join grants (`roomAdmin=False`).
 
-#### C. Endpoints
+#### B. Endpoints
 
 | Method | Path | Use Case | Description |
 |---|---|---|---|
-| `POST` | `/meets/{meet_hash}/token` | `GenerateLiveKitTokenUseCase` | Returns a LiveKit JWT for the authenticated user. Checks ban status, grants `roomAdmin` to the creator. |
-| `POST` | `/meets/{meet_hash}/ban/{user_id}` | `BanParticipantUseCase` | Creator-only. Sets `is_banned=True` in DB and calls `RoomServiceClient.remove_participant` to evict from the LiveKit room. |
+| `POST` | `/meets/{meet_hash}/token` | `GenerateLiveKitTokenUseCase` | Returns a LiveKit JWT for the authenticated user. Grants `roomAdmin` to the creator. |
 
-#### D. Architecture Flow
+#### C. Architecture Flow
 
 ```
 Frontend                    FastAPI                        LiveKit Server
    |                           |                               |
    |--- POST /token ---------->|                               |
-   |                           |-- check is_banned ----------->|
    |                           |-- generate JWT -------------->|
    |<----- token --------------|                               |
    |                                                           |
    |--- WS connect (token) ---------------------------------->|
    |--- kick/block (roomAdmin) ------------------------------->|
-   |                                                           |
-   |--- POST /ban/{user_id} --->|                              |
-   |                           |-- set is_banned=True          |
-   |                           |-- remove_participant -------->|
-   |<----- 200 OK -------------|                               |
 ```
 
-#### E. LiveKit Service Infrastructure
+#### D. LiveKit Service Infrastructure
 
 - `ILiveKitService` (abstract) lives in `application/interfaces/`.
 - `LiveKitService` (implementation) lives in `infrastructure/livekit_service.py`.
@@ -267,8 +254,7 @@ meeting/
 │   ├── create_meet_usecase.py ← RBAC-enforced, domain exceptions
 │   ├── delete_meet_usecase.py ← ownership & hierarchy checks
 │   ├── get_meet_by_hash_usecase.py ← role-based view access
-│   ├── generate_livekit_token_usecase.py ← ban check + token gen
-│   ├── ban_participant_usecase.py ← ban + evict via LiveKit
+│   ├── generate_livekit_token_usecase.py ← token gen
 │   ├── get_user_usecase.py
 │   ├── list_meets_usecase.py ← paginated, role-filtered
 │   ├── list_user_invitations_usecase.py ← participant meets
@@ -284,12 +270,12 @@ meeting/
 │   ├── auth_guard.py ← OAuth2PasswordBearer, returns full User entity
 │   ├── orm/
 │   │   ├── meet_model.py
-│   │   ├── participant_model.py ← is_banned column
+│   │   ├── participant_model.py
 │   │   ├── refresh_token_model.py
 │   │   └── user_model.py ← Role enum includes SuperAdmin
 │   ├── repository/
 │   │   ├── postgres_meet_repository.py
-│   │   ├── postgres_participant_repository.py ← ban queries
+│   │   ├── postgres_participant_repository.py
 │   │   ├── postgres_refresh_token_repository.py
 │   │   └── postgres_user_repository.py
 │   ├── provider/
@@ -302,7 +288,7 @@ meeting/
     │   ├── base_dto.py ← MutationResponseDTO[T], SingleResponseDTO[T], PaginatedResponseDTO[T], ErrorResponseDTO
     │   ├── create_meet_dto.py ← No IDOR, Field validations, model_validator, MeetResponseData
     │   ├── get_user_dto.py
-    │   ├── livekit_dto.py ← LiveKitTokenData, BanParticipantResponseData
+    │   ├── livekit_dto.py ← LiveKitTokenData
     │   ├── login_user_dto.py
     │   ├── refresh_token_dto.py
     │   └── register_user_dto.py
@@ -313,7 +299,7 @@ meeting/
     ├── dependencies/
     │   └── auth_stub.py ← get_current_user_stub + oauth2_scheme (centralized)
     └── router/
-        ├── livekit_router.py ← thin, LiveKit token/ban endpoints
+        ├── livekit_router.py ← thin, LiveKit token endpoint
         ├── meet_router.py ← thin, no try-except, no business logic
         └── user_router.py ← thin, imports get_current_user_stub, no try-except
 

@@ -34,33 +34,8 @@ class PostgresParticipantRepository(IParticipantRepository):
         return ParticipantData(
             meet_id=record.meet_id,
             user_id=record.user_id,
-            is_banned=record.is_banned,
             joined_at=record.joined_at,
         )
-
-    def is_user_banned(self, meet_id: int, user_id: int) -> bool:
-        record = (
-            self.db_session.query(MeetParticipantModel.is_banned)
-            .filter(
-                MeetParticipantModel.meet_id == meet_id,
-                MeetParticipantModel.user_id == user_id,
-            )
-            .scalar()
-        )
-        return bool(record)
-
-    def ban_user(self, meet_id: int, user_id: int) -> None:
-        record = (
-            self.db_session.query(MeetParticipantModel)
-            .filter(
-                MeetParticipantModel.meet_id == meet_id,
-                MeetParticipantModel.user_id == user_id,
-            )
-            .first()
-        )
-        if record:
-            record.is_banned = True
-            self.db_session.commit()
 
     def _map_meet_to_domain(self, db_meet: MeetModel) -> Meet:
         participant_ids = [p.user_id for p in db_meet.participants]
