@@ -26,6 +26,3 @@ class LiveKitService(ILiveKitService):
 
         return token.to_jwt()
 
-    async def remove_participant(self, room_name: str, identity: str) -> None:
-        async with LiveKitAPI(LIVEKIT_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET) as lk:
-            await lk.room.remove_participant(room_name=room_name, identity=identity)

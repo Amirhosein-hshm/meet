@@ -2,8 +2,7 @@ from pydantic.dataclasses import dataclass
 
 from domain.entity.user_entity import Role
 from domain.repository_interface.meet_repository_interface import IMeetRepository
-from domain.repository_interface.participant_repository_interface import IParticipantRepository
-from domain.exceptions.base_exceptions import ResourceNotFoundError, ForbiddenActionError, UserBannedError
+from domain.exceptions.base_exceptions import ResourceNotFoundError, ForbiddenActionError
 from application.interfaces.livekit_service_interface import ILiveKitService
 
 
@@ -24,11 +23,9 @@ class GenerateLiveKitTokenUseCase:
     def __init__(
         self,
         meet_repository: IMeetRepository,
-        participant_repository: IParticipantRepository,
         livekit_service: ILiveKitService,
     ):
         self.meet_repository = meet_repository
-        self.participant_repository = participant_repository
         self.livekit_service = livekit_service
 
     def execute(self, request: GenerateLiveKitTokenRequestInput) -> GenerateLiveKitTokenResponseOutput:
@@ -49,11 +46,6 @@ class GenerateLiveKitTokenUseCase:
         elif request.actor_role == Role.User:
             if not is_participant:
                 raise ForbiddenActionError("You do not have access to this meeting.")
-
-        if not is_creator:
-            banned = self.participant_repository.is_user_banned(meet.id, request.actor_id)
-            if banned:
-                raise UserBannedError()
 
         room_admin = is_creator
         identity = str(request.actor_id)

@@ -10,7 +10,6 @@ from domain.entity.meet_entity import Meet
 class ParticipantData:
     meet_id: int
     user_id: int
-    is_banned: bool
     joined_at: Optional[datetime] = None
 
 
@@ -21,12 +20,4 @@ class IParticipantRepository(ABC):
 
     @abstractmethod
     def find_participant(self, meet_id: int, user_id: int) -> Optional[ParticipantData]:
-        pass
-
-    @abstractmethod
-    def is_user_banned(self, meet_id: int, user_id: int) -> bool:
-        pass
-
-    @abstractmethod
-    def ban_user(self, meet_id: int, user_id: int) -> None:
         pass
