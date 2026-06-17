@@ -8,7 +8,8 @@ from application.usecases.list_user_managed_meets_usecase import ListUserManaged
 from application.usecases.update_meet_usecase import UpdateMeetResponseOutput
 from application.usecases.delete_meet_usecase import DeleteMeetResponseOutput
 from presentation.dto.create_meet_dto import MeetResponseData
-from presentation.dto.meet_dto import MeetDetailData, MeetListItemData
+from presentation.dto.meet_dto import MeetDetailData, MeetDetailWithParticipantsData, MeetListItemData
+from presentation.dto.get_user_dto import GetMeResponseDTO
 from presentation.dto.base_dto import MutationResponseDTO, SingleResponseDTO, PaginatedResponseDTO
 
 
@@ -31,8 +32,22 @@ class MeetPresenter:
         )
 
     @staticmethod
-    def format_single_meet_response(dto: GetMeetByHashResponseOutput) -> SingleResponseDTO[MeetDetailData]:
-        data = MeetDetailData(
+    def format_single_meet_response(dto: GetMeetByHashResponseOutput) -> SingleResponseDTO[MeetDetailWithParticipantsData]:
+        participants = [
+            GetMeResponseDTO(
+                id=p.id,
+                first_name=p.first_name,
+                last_name=p.last_name,
+                username=p.username,
+                email=p.email,
+                role=p.role,
+                is_active=p.is_active,
+                created_at=p.created_at,
+                update_at=p.updated_at,
+            )
+            for p in dto.participants
+        ]
+        data = MeetDetailWithParticipantsData(
             id=dto.id,
             title=dto.title,
             meet_hash=dto.meet_hash,
@@ -40,7 +55,7 @@ class MeetPresenter:
             expires_at=dto.expires_at,
             creator_id=dto.creator_id,
             is_active=dto.is_active,
-            participant_ids=dto.participant_ids,
+            participants=participants,
             created_at=dto.created_at,
             updated_at=dto.updated_at,
         )

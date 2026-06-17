@@ -184,6 +184,7 @@ All User Management endpoints live in `presentation/router/user_router.py` (pref
 **IUserRepository additions (in `domain/repository_interface/user_repository_interface.py`):**
 
 - `find_by_email(email: str) -> Optional[User]`
+- `find_by_ids(user_ids: List[int]) -> List[User]` — Batched lookup. **Does NOT guarantee result ordering.** Missing IDs are silently omitted. Ordering restoration is the responsibility of the UseCase layer.
 - `find_all_paginated(page: int, size: int, username: Optional[str] = None) -> Tuple[List[User], int]`
 - `delete(user_id: int) -> None`
 
@@ -300,7 +301,7 @@ meeting/
 ├── application/usecases/
 │   ├── create_meet_usecase.py ← RBAC-enforced, domain exceptions
 │   ├── delete_meet_usecase.py ← ownership & hierarchy checks
-│   ├── get_meet_by_hash_usecase.py ← role-based view access
+    │   ├── get_meet_by_hash_usecase.py ← role-based view access, returns participants as full user objects
 │   ├── generate_livekit_token_usecase.py ← token gen
 │   ├── get_user_usecase.py
 │   ├── list_meets_usecase.py ← paginated, role-filtered
@@ -341,6 +342,7 @@ meeting/
     │   ├── get_user_dto.py
     │   ├── livekit_dto.py ← LiveKitTokenData
     │   ├── login_user_dto.py
+    │   ├── meet_dto.py ← MeetDetailData (PUT), MeetDetailWithParticipantsData (GET), MeetListItemData, ListMeetsQueryDTO, UpdateMeetRequestDTO
     │   ├── refresh_token_dto.py
     │   └── register_user_dto.py
     ├── presenter/

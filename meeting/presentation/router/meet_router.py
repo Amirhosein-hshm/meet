@@ -7,7 +7,7 @@ from application.usecases.list_meets_usecase import ListMeetsRequestInput, ListM
 from application.usecases.update_meet_usecase import UpdateMeetRequestInput, UpdateMeetUseCase
 from application.usecases.delete_meet_usecase import DeleteMeetRequestInput, DeleteMeetUseCase
 from presentation.dto.create_meet_dto import CreateMeetRequestDTO, MeetResponseData
-from presentation.dto.meet_dto import ListMeetsQueryDTO, UpdateMeetRequestDTO, MeetDetailData, MeetListItemData
+from presentation.dto.meet_dto import ListMeetsQueryDTO, UpdateMeetRequestDTO, MeetDetailData, MeetDetailWithParticipantsData, MeetListItemData
 from presentation.dto.base_dto import MutationResponseDTO, SingleResponseDTO, PaginatedResponseDTO
 from presentation.presenter.meet_presenter import MeetPresenter
 from presentation.dependencies.auth_stub import get_current_user_stub
@@ -55,7 +55,7 @@ def create_meet(
     return MeetPresenter.format_create_response(dto_response)
 
 
-@router.get("/{meet_hash}", response_model=SingleResponseDTO[MeetDetailData])
+@router.get("/{meet_hash}", response_model=SingleResponseDTO[MeetDetailWithParticipantsData])
 def get_meet_by_hash(
     meet_hash: str,
     current_user: User = Depends(get_current_user_stub),

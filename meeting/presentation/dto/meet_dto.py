@@ -2,6 +2,8 @@ from typing import List, Optional
 from pydantic import BaseModel, Field, model_validator
 from datetime import datetime
 
+from presentation.dto.get_user_dto import GetMeResponseDTO
+
 
 class ListMeetsQueryDTO(BaseModel):
     page: int = Field(default=1, ge=1, description="Page number")
@@ -36,6 +38,19 @@ class MeetDetailData(BaseModel):
     creator_id: int
     is_active: bool
     participant_ids: List[int]
+    created_at: datetime
+    updated_at: datetime
+
+
+class MeetDetailWithParticipantsData(BaseModel):
+    id: int
+    title: str
+    meet_hash: str
+    start_time: datetime
+    expires_at: datetime
+    creator_id: int
+    is_active: bool
+    participants: List[GetMeResponseDTO]
     created_at: datetime
     updated_at: datetime
 

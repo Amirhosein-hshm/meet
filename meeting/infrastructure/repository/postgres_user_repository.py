@@ -93,6 +93,24 @@ class PostgresUserRepository(IUserRepository):
             update_at=db_user.update_at
         )
 
+    def find_by_ids(self, user_ids: List[int]) -> List[User]:
+        db_users = self.db_session.query(UserModel).filter(UserModel.id.in_(user_ids)).all()
+        return [
+            User(
+                id=u.id,
+                first_name=u.first_name,
+                last_name=u.last_name,
+                username=u.username,
+                email=u.email,
+                password_hash=u.password_hash,
+                role=u.role,
+                is_active=u.is_active,
+                created_at=u.created_at,
+                update_at=u.update_at,
+            )
+            for u in db_users
+        ]
+
     def find_all_paginated(self, page: int, size: int, username: Optional[str] = None) -> Tuple[List[User], int]:
         query = self.db_session.query(UserModel)
         if username:

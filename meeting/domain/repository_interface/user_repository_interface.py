@@ -23,6 +23,14 @@ class IUserRepository(ABC):
         pass
 
     @abstractmethod
+    def find_by_ids(self, user_ids: List[int]) -> List[User]:
+        """Batched lookup. Does NOT guarantee result ordering. Missing IDs are silently omitted.
+
+        Ordering restoration is the responsibility of the UseCase layer.
+        """
+        pass
+
+    @abstractmethod
     def find_all_paginated(self, page: int, size: int, username: Optional[str] = None) -> Tuple[List[User], int]:
         pass
 

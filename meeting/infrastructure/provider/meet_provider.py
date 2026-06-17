@@ -29,7 +29,8 @@ def create_real_meet_use_case(db: Session = Depends(get_db_session)):
 
 def create_real_get_meet_by_hash_use_case(db: Session = Depends(get_db_session)):
     meet_repository = PostgresMeetRepository(db)
-    return GetMeetByHashUseCase(meet_repository)
+    user_repository = PostgresUserRepository(db)
+    return GetMeetByHashUseCase(meet_repository, user_repository)
 
 
 def create_real_list_meets_use_case(db: Session = Depends(get_db_session)):
