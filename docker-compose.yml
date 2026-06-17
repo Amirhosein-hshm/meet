@@ -45,7 +45,6 @@ services:
       - "7880:7880"
       - "7881:7881"
       - "7882:7882/udp"
-      # مپ کردن پورت‌های مدیا برای ارتباط WebRTC کلاینت‌ها
       - "50000-50050:50000-50050/udp"
     volumes:
       - ./livekit.yaml:/etc/livekit/livekit.yaml:ro
