@@ -21,6 +21,8 @@ class UpdateUserRequestInput:
     last_name: Optional[str] = None
     username: Optional[str] = None
     email: Optional[str] = None
+    role: Optional[Role] = None
+    is_active: Optional[bool] = None
 
 
 @dataclass
@@ -34,6 +36,38 @@ class UpdateUserResponseOutput:
     is_active: bool
     created_at: datetime
     update_at: datetime
+
+
+def _validate_role_active_modification(
+    actor: User,
+    target: User,
+    new_role: Optional[Role],
+    new_is_active: Optional[bool],
+) -> None:
+    role_changed = new_role is not None and new_role != target.role
+    active_changed = new_is_active is not None and new_is_active != target.is_active
+
+    if not role_changed and not active_changed:
+        return
+
+    if actor.role == Role.SuperAdmin:
+        if new_role == Role.SuperAdmin and target.role != Role.SuperAdmin:
+            raise RoleHierarchyViolationError(
+                "A SuperAdmin already exists. Cannot promote another user to SuperAdmin."
+            )
+        return
+
+    if actor.role == Role.Admin:
+        if target.id == actor.id:
+            raise RoleHierarchyViolationError(
+                "Admins cannot modify their own role or active status."
+            )
+        return
+
+    if actor.role in (Role.Host, Role.User):
+        raise RoleHierarchyViolationError(
+            "You are not allowed to modify role or active status."
+        )
 
 
 class UpdateUserUseCase:
@@ -63,6 +97,8 @@ class UpdateUserUseCase:
         else:
             raise UnauthorizedRoleError("You do not have permission to update users.")
 
+        _validate_role_active_modification(actor, target, request.role, request.is_active)
+
         if request.username is not None and request.username != target.username:
             existing = self.user_repository.find_by_username(request.username)
             if existing is not None and existing.id != target.id:
@@ -81,6 +117,10 @@ class UpdateUserUseCase:
             target.username = request.username
         if request.email is not None:
             target.email = request.email
+        if request.role is not None:
+            target.role = request.role
+        if request.is_active is not None:
+            target.is_active = request.is_active
         target.update_at = datetime.utcnow()
 
         saved = self.user_repository.save(target)

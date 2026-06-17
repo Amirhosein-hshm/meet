@@ -16,7 +16,7 @@ from application.usecases.get_user_by_username_usecase import GetUserByUsernameR
 from presentation.dto.refresh_token_dto import RefreshTokenRequestDTO
 from presentation.dto.register_user_dto import RegisterRequestDTO
 from presentation.dto.meet_dto import PaginatedUserMeetsQueryDTO, MeetListItemData
-from presentation.dto.get_user_dto import GetMeResponseDTO, UpdateUserRequestDTO
+from presentation.dto.get_user_dto import GetMeResponseDTO, UpdateUserRequestDTO, ListUsersQueryDTO
 from presentation.dto.base_dto import MutationResponseDTO, SingleResponseDTO, PaginatedResponseDTO
 from presentation.dto.register_user_dto import RegisterResponseDTO
 from presentation.dto.login_user_dto import LoginResponseDTO
@@ -158,7 +158,7 @@ def get_list_users_use_case_stub() -> ListUsersUseCase:
 
 @router.get("", response_model=PaginatedResponseDTO[GetMeResponseDTO])
 def list_users(
-    query: PaginatedUserMeetsQueryDTO = Depends(),
+    query: ListUsersQueryDTO = Depends(),
     current_user: User = Depends(get_current_user_stub),
     use_case: ListUsersUseCase = Depends(get_list_users_use_case_stub),
 ):
@@ -167,6 +167,7 @@ def list_users(
         actor_role=current_user.role,
         page=query.page,
         size=query.size,
+        username=query.username,
     )
     dto_response = use_case.execute(dto_request)
     return UserPresenter.format_list_users_response(dto_response)
@@ -210,6 +211,8 @@ def update_user(
         last_name=request.last_name,
         username=request.username,
         email=request.email,
+        role=request.role,
+        is_active=request.is_active,
     )
     dto_response = use_case.execute(dto_request)
     return UserPresenter.format_update_user_response(dto_response)

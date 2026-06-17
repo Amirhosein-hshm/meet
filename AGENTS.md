@@ -166,24 +166,30 @@ All User Management endpoints live in `presentation/router/user_router.py` (pref
 - Host/User: no delete permission.
 
 **Update User Hierarchy Rules:**
-- SuperAdmin: can update any user.
-- Admin: can update self, Host, or User. Cannot update other Admins or the SuperAdmin.
-- Host: can only update own account.
-- User: can only update own account.
+- SuperAdmin: can update any user, including role and is_active. **CRITICAL BOUNDARY:** A SuperAdmin cannot promote another user to SuperAdmin — setting `role` to `SuperAdmin` is forbidden for any target that is not already a SuperAdmin.
+- Admin: can update self (except own `role` or `is_active`), Host, or User. Cannot update other Admins or the SuperAdmin.
+- Host: can only update own account. Cannot modify own `role` or `is_active`.
+- User: can only update own account. Cannot modify own `role` or `is_active`.
 
 **Update Conflict Validation:**
 - Username/email uniqueness checks must exclude the target user's own ID.
   ```python
   existing is not None and existing.id != target.id
   ```
-- `UpdateUserRequestDTO` requires at least one field — enforced via `@model_validator(mode="after")`.
+- `UpdateUserRequestDTO` supports fields: `first_name`, `last_name`, `username`, `email`, `role`, `is_active`. The `role` field uses the `Role` enum directly. Requires at least one field — enforced via `@model_validator(mode="after")`.
 
 **IUserRepository additions (in `domain/repository_interface/user_repository_interface.py`):**
 - `find_by_email(email: str) -> Optional[User]`
-- `find_all_paginated(page: int, size: int) -> Tuple[List[User], int]`
+- `find_all_paginated(page: int, size: int, username: Optional[str] = None) -> Tuple[List[User], int]`
 - `delete(user_id: int) -> None`
 
 **GetMeResponseDTO** now includes `is_active: bool = True` (added to `presentation/dto/get_user_dto.py`).
+
+**List Users Query DTO** (`ListUsersQueryDTO` in `presentation/dto/get_user_dto.py`):
+- Supports `page`, `size`, and optional `username` filter.
+- The `username` filter is case-insensitive and applied at the repository query level via PostgreSQL `ilike`.
+- Usage: `GET /users?page=1&size=20&username=ali`.
+- When `username` is not provided, existing paginated behavior is unchanged.
 
 ### 7. LiveKit Infrastructure (Docker Sidecar)
 

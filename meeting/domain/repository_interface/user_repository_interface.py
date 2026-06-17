@@ -23,7 +23,7 @@ class IUserRepository(ABC):
         pass
 
     @abstractmethod
-    def find_all_paginated(self, page: int, size: int) -> Tuple[List[User], int]:
+    def find_all_paginated(self, page: int, size: int, username: Optional[str] = None) -> Tuple[List[User], int]:
         pass
 
     @abstractmethod

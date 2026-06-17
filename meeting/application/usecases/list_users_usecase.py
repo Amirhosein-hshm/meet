@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Optional
 from datetime import datetime
 
 from domain.entity.user_entity import Role
@@ -13,6 +13,7 @@ class ListUsersRequestInput:
     actor_role: Role
     page: int = 1
     size: int = 20
+    username: Optional[str] = None
 
 
 @dataclass
@@ -44,7 +45,7 @@ class ListUsersUseCase:
         if request.actor_role not in (Role.SuperAdmin, Role.Admin):
             raise UnauthorizedRoleError("Only SuperAdmins and Admins can list users.")
 
-        users, total = self.user_repository.find_all_paginated(request.page, request.size)
+        users, total = self.user_repository.find_all_paginated(request.page, request.size, request.username)
 
         items = [
             ListUsersItemData(

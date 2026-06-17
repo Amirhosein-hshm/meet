@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 from sqlalchemy.orm import Session
 from domain.entity.user_entity import User
 from domain.repository_interface.user_repository_interface import IUserRepository
@@ -93,8 +93,10 @@ class PostgresUserRepository(IUserRepository):
             update_at=db_user.update_at
         )
 
-    def find_all_paginated(self, page: int, size: int) -> Tuple[List[User], int]:
+    def find_all_paginated(self, page: int, size: int, username: Optional[str] = None) -> Tuple[List[User], int]:
         query = self.db_session.query(UserModel)
+        if username:
+            query = query.filter(UserModel.username.ilike(f"%{username}%"))
         total = query.count()
         offset = (page - 1) * size
         db_users = query.order_by(UserModel.created_at.desc()).offset(offset).limit(size).all()
