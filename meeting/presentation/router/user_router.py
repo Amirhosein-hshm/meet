@@ -9,13 +9,17 @@ from application.usecases.refresh_token_usecase import RefreshTokenRequestInput,
 from application.usecases.register_user_usecase import RegisterUserRequestInput, RegisterUserUseCase
 from application.usecases.list_user_invitations_usecase import ListUserInvitationsRequestInput, ListUserInvitationsUseCase
 from application.usecases.list_user_managed_meets_usecase import ListUserManagedMeetsRequestInput, ListUserManagedMeetsUseCase
+from application.usecases.list_users_usecase import ListUsersRequestInput, ListUsersUseCase
+from application.usecases.delete_user_usecase import DeleteUserRequestInput, DeleteUserUseCase
+from application.usecases.update_user_usecase import UpdateUserRequestInput, UpdateUserUseCase
+from application.usecases.get_user_by_username_usecase import GetUserByUsernameRequestInput, GetUserByUsernameUseCase
 from presentation.dto.refresh_token_dto import RefreshTokenRequestDTO
 from presentation.dto.register_user_dto import RegisterRequestDTO
 from presentation.dto.meet_dto import PaginatedUserMeetsQueryDTO, MeetListItemData
-from presentation.dto.base_dto import MutationResponseDTO, PaginatedResponseDTO
+from presentation.dto.get_user_dto import GetMeResponseDTO, UpdateUserRequestDTO
+from presentation.dto.base_dto import MutationResponseDTO, SingleResponseDTO, PaginatedResponseDTO
 from presentation.dto.register_user_dto import RegisterResponseDTO
 from presentation.dto.login_user_dto import LoginResponseDTO
-from presentation.dto.get_user_dto import GetMeResponseDTO
 from presentation.dto.refresh_token_dto import RefreshTokenResponseDTO
 from presentation.presenter.user_presenter import UserPresenter
 from presentation.presenter.meet_presenter import MeetPresenter
@@ -146,3 +150,85 @@ def get_user_managed_meets(
     )
     dto_response = use_case.execute(dto_request)
     return MeetPresenter.format_managed_meets_response(dto_response)
+
+
+def get_list_users_use_case_stub() -> ListUsersUseCase:
+    raise NotImplementedError("This dependency must be overridden by the Composition Root.")
+
+
+@router.get("", response_model=PaginatedResponseDTO[GetMeResponseDTO])
+def list_users(
+    query: PaginatedUserMeetsQueryDTO = Depends(),
+    current_user: User = Depends(get_current_user_stub),
+    use_case: ListUsersUseCase = Depends(get_list_users_use_case_stub),
+):
+    dto_request = ListUsersRequestInput(
+        actor_id=current_user.id,
+        actor_role=current_user.role,
+        page=query.page,
+        size=query.size,
+    )
+    dto_response = use_case.execute(dto_request)
+    return UserPresenter.format_list_users_response(dto_response)
+
+
+def get_delete_user_use_case_stub() -> DeleteUserUseCase:
+    raise NotImplementedError("This dependency must be overridden by the Composition Root.")
+
+
+@router.delete("/{user_id}", response_model=MutationResponseDTO)
+def delete_user(
+    user_id: int,
+    current_user: User = Depends(get_current_user_stub),
+    use_case: DeleteUserUseCase = Depends(get_delete_user_use_case_stub),
+):
+    dto_request = DeleteUserRequestInput(
+        actor_id=current_user.id,
+        actor_role=current_user.role,
+        target_user_id=user_id,
+    )
+    dto_response = use_case.execute(dto_request)
+    return UserPresenter.format_delete_user_response(dto_response)
+
+
+def get_update_user_use_case_stub() -> UpdateUserUseCase:
+    raise NotImplementedError("This dependency must be overridden by the Composition Root.")
+
+
+@router.put("/{user_id}", response_model=MutationResponseDTO[GetMeResponseDTO])
+def update_user(
+    user_id: int,
+    request: UpdateUserRequestDTO,
+    current_user: User = Depends(get_current_user_stub),
+    use_case: UpdateUserUseCase = Depends(get_update_user_use_case_stub),
+):
+    dto_request = UpdateUserRequestInput(
+        actor_id=current_user.id,
+        actor_role=current_user.role,
+        target_user_id=user_id,
+        first_name=request.first_name,
+        last_name=request.last_name,
+        username=request.username,
+        email=request.email,
+    )
+    dto_response = use_case.execute(dto_request)
+    return UserPresenter.format_update_user_response(dto_response)
+
+
+def get_user_by_username_use_case_stub() -> GetUserByUsernameUseCase:
+    raise NotImplementedError("This dependency must be overridden by the Composition Root.")
+
+
+@router.get("/by-username/{username}", response_model=SingleResponseDTO[GetMeResponseDTO])
+def get_user_by_username(
+    username: str,
+    current_user: User = Depends(get_current_user_stub),
+    use_case: GetUserByUsernameUseCase = Depends(get_user_by_username_use_case_stub),
+):
+    dto_request = GetUserByUsernameRequestInput(
+        actor_id=current_user.id,
+        actor_role=current_user.role,
+        username=username,
+    )
+    dto_response = use_case.execute(dto_request)
+    return UserPresenter.format_get_user_by_username_response(dto_response)

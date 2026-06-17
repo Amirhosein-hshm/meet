@@ -8,6 +8,10 @@ from application.usecases.refresh_token_usecase import RefreshTokenUseCase
 from application.usecases.register_user_usecase import RegisterUserUseCase
 from application.usecases.list_user_invitations_usecase import ListUserInvitationsUseCase
 from application.usecases.list_user_managed_meets_usecase import ListUserManagedMeetsUseCase
+from application.usecases.list_users_usecase import ListUsersUseCase
+from application.usecases.delete_user_usecase import DeleteUserUseCase
+from application.usecases.update_user_usecase import UpdateUserUseCase
+from application.usecases.get_user_by_username_usecase import GetUserByUsernameUseCase
 from infrastructure.database import get_db_session
 from infrastructure.repository.postgres_meet_repository import PostgresMeetRepository
 from infrastructure.repository.postgres_refresh_token_repository import PostgresRefreshTokenRepository
@@ -23,6 +27,10 @@ from presentation.router.user_router import (
     get_logout_use_case_stub,
     get_user_invitations_use_case_stub,
     get_user_managed_meets_use_case_stub,
+    get_list_users_use_case_stub,
+    get_delete_user_use_case_stub,
+    get_update_user_use_case_stub,
+    get_user_by_username_use_case_stub,
 )
 
 
@@ -76,6 +84,26 @@ def get_real_user_managed_meets_use_case(db: Session = Depends(get_db_session)):
     return ListUserManagedMeetsUseCase(meet_repo)
 
 
+def get_real_list_users_use_case(db: Session = Depends(get_db_session)):
+    user_repo = PostgresUserRepository(db)
+    return ListUsersUseCase(user_repo)
+
+
+def get_real_delete_user_use_case(db: Session = Depends(get_db_session)):
+    user_repo = PostgresUserRepository(db)
+    return DeleteUserUseCase(user_repo)
+
+
+def get_real_update_user_use_case(db: Session = Depends(get_db_session)):
+    user_repo = PostgresUserRepository(db)
+    return UpdateUserUseCase(user_repo)
+
+
+def get_real_get_user_by_username_use_case(db: Session = Depends(get_db_session)):
+    user_repo = PostgresUserRepository(db)
+    return GetUserByUsernameUseCase(user_repo)
+
+
 def register_user_di(app: FastAPI):
     app.dependency_overrides[get_current_user_stub] = get_real_current_user
     app.dependency_overrides[get_register_use_case_stub] = get_real_register_use_case
@@ -85,3 +113,7 @@ def register_user_di(app: FastAPI):
     app.dependency_overrides[get_logout_use_case_stub] = get_real_logout_use_case
     app.dependency_overrides[get_user_invitations_use_case_stub] = get_real_user_invitations_use_case
     app.dependency_overrides[get_user_managed_meets_use_case_stub] = get_real_user_managed_meets_use_case
+    app.dependency_overrides[get_list_users_use_case_stub] = get_real_list_users_use_case
+    app.dependency_overrides[get_delete_user_use_case_stub] = get_real_delete_user_use_case
+    app.dependency_overrides[get_update_user_use_case_stub] = get_real_update_user_use_case
+    app.dependency_overrides[get_user_by_username_use_case_stub] = get_real_get_user_by_username_use_case

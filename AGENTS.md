@@ -149,6 +149,42 @@ All API responses MUST use the generic envelopes from `presentation/dto/base_dto
 
 _Implementation rule:_ The UseCase returns raw domain output. The `Presenter` maps this output into the correct generic envelope. Never return raw lists or bare objects from endpoints.
 
+#### G. User Management APIs
+
+All User Management endpoints live in `presentation/router/user_router.py` (prefix `/users`). Every route reuses the existing `get_current_user_stub` for authentication.
+
+| Endpoint | Method | UseCase | Response Envelope | Access |
+|----------|--------|---------|-------------------|--------|
+| `/users` | `GET` | `ListUsersUseCase` | `PaginatedResponseDTO[GetMeResponseDTO]` | SuperAdmin, Admin |
+| `/users/{user_id}` | `DELETE` | `DeleteUserUseCase` | `MutationResponseDTO` | SuperAdmin (any except self), Admin (Host/User only) |
+| `/users/{user_id}` | `PUT` | `UpdateUserUseCase` | `MutationResponseDTO[GetMeResponseDTO]` | SuperAdmin (any), Admin (self, Host, User), Host/User (self only) |
+| `/users/by-username/{username}` | `GET` | `GetUserByUsernameUseCase` | `SingleResponseDTO[GetMeResponseDTO]` | All roles |
+
+**Delete User Hierarchy Rules:**
+- SuperAdmin: can delete any user **except themselves**.
+- Admin: can delete Host or User only. Cannot delete other Admins, the SuperAdmin, or themselves.
+- Host/User: no delete permission.
+
+**Update User Hierarchy Rules:**
+- SuperAdmin: can update any user.
+- Admin: can update self, Host, or User. Cannot update other Admins or the SuperAdmin.
+- Host: can only update own account.
+- User: can only update own account.
+
+**Update Conflict Validation:**
+- Username/email uniqueness checks must exclude the target user's own ID.
+  ```python
+  existing is not None and existing.id != target.id
+  ```
+- `UpdateUserRequestDTO` requires at least one field — enforced via `@model_validator(mode="after")`.
+
+**IUserRepository additions (in `domain/repository_interface/user_repository_interface.py`):**
+- `find_by_email(email: str) -> Optional[User]`
+- `find_all_paginated(page: int, size: int) -> Tuple[List[User], int]`
+- `delete(user_id: int) -> None`
+
+**GetMeResponseDTO** now includes `is_active: bool = True` (added to `presentation/dto/get_user_dto.py`).
+
 ### 7. LiveKit Infrastructure (Docker Sidecar)
 
 LiveKit is the WebRTC media server powering all real-time audio/video streaming.
@@ -277,6 +313,10 @@ meeting/
 │   ├── logout_user_usecase.py
 │   ├── refresh_token_usecase.py
 │   ├── register_user_usecase.py
+│   ├── list_users_usecase.py ← paginated, SuperAdmin/Admin only
+│   ├── delete_user_usecase.py ← hierarchy-enforced deletion
+│   ├── update_user_usecase.py ← role-based, conflict validation
+│   ├── get_user_by_username_usecase.py ← all roles
 │   └── update_meet_usecase.py ← assignment logic, RBAC
 ├── infrastructure/
 │   ├── database.py
@@ -301,7 +341,7 @@ meeting/
     ├── dto/
     │   ├── base_dto.py ← MutationResponseDTO[T], SingleResponseDTO[T], PaginatedResponseDTO[T], ErrorResponseDTO
     │   ├── create_meet_dto.py ← No IDOR, Field validations, model_validator, MeetResponseData
-    │   ├── get_user_dto.py
+    │   ├── get_user_dto.py ← GetMeResponseDTO (shared user shape), UpdateUserRequestDTO
     │   ├── livekit_dto.py ← LiveKitTokenData, BanParticipantResponseData
     │   ├── login_user_dto.py
     │   ├── refresh_token_dto.py
