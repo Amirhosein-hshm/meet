@@ -69,3 +69,7 @@ class MeetListItemData(BaseModel):
 class PaginatedUserMeetsQueryDTO(BaseModel):
     page: int = Field(default=1, ge=1, description="Page number")
     size: int = Field(default=20, ge=1, le=100, description="Items per page")
+    start_date: Optional[datetime] = Field(default=None, description="Filter by start_time >= this date")
+    end_date: Optional[datetime] = Field(default=None, description="Filter by start_time <= this date")
+    guest_username: Optional[str] = Field(default=None, description="Filter by participant username")
+    title_query: Optional[str] = Field(default=None, min_length=1, description="Search by title")

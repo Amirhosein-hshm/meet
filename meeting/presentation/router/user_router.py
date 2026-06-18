@@ -127,6 +127,10 @@ def get_user_invitations(
         actor_role=current_user.role,
         page=query.page,
         size=query.size,
+        start_date=query.start_date,
+        end_date=query.end_date,
+        guest_username=query.guest_username,
+        title_query=query.title_query,
     )
     dto_response = use_case.execute(dto_request)
     return MeetPresenter.format_invitations_response(dto_response)
@@ -147,6 +151,10 @@ def get_user_managed_meets(
         actor_role=current_user.role,
         page=query.page,
         size=query.size,
+        start_date=query.start_date,
+        end_date=query.end_date,
+        guest_username=query.guest_username,
+        title_query=query.title_query,
     )
     dto_response = use_case.execute(dto_request)
     return MeetPresenter.format_managed_meets_response(dto_response)
