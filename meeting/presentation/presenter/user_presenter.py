@@ -16,7 +16,7 @@ class UserPresenter:
     def format_register_response(dto: RegisterUserResponseOutput) -> MutationResponseDTO:
         return MutationResponseDTO(
             data=dto,
-            message="کاربر با موفقیت ثبت نام کرد.",
+            message="ثبت نام با موفقیت انجام شد.",
         )
 
     @staticmethod
