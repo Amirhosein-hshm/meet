@@ -12,5 +12,5 @@ class LiveKitPresenter:
         )
         return MutationResponseDTO(
             data=data,
-            message="LiveKit token generated successfully.",
+            message="توکن LiveKit با موفقیت تولید شد.",
         )

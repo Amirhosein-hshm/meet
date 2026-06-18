@@ -28,26 +28,26 @@ class DeleteUserUseCase:
     def execute(self, request: DeleteUserRequestInput) -> DeleteUserResponseOutput:
         actor = self.user_repository.find_by_id(request.actor_id)
         if not actor:
-            raise UnauthorizedRoleError("Authenticated user not found.")
+            raise UnauthorizedRoleError("کاربر احراز هویت شده یافت نشد.")
 
         target = self.user_repository.find_by_id(request.target_user_id)
         if not target:
-            raise ResourceNotFoundError(f"User with id '{request.target_user_id}' not found.")
+            raise ResourceNotFoundError(f"کاربر با شناسه '{request.target_user_id}' یافت نشد.")
 
         if request.actor_role == Role.SuperAdmin:
             if target.id == request.actor_id:
                 raise RoleHierarchyViolationError(
-                    "SuperAdmin cannot delete themselves."
+                    "سوپرادمین نمی‌تواند خودش را حذف کند."
                 )
 
         elif request.actor_role == Role.Admin:
             if target.role in (Role.Admin, Role.SuperAdmin):
-                raise RoleHierarchyViolationError("Admins cannot delete other Admins or the SuperAdmin.")
+                raise RoleHierarchyViolationError("مدیران نمی‌توانند مدیران دیگر یا سوپرادمین را حذف کنند.")
             if target.id == request.actor_id:
-                raise RoleHierarchyViolationError("Admins cannot delete themselves.")
+                raise RoleHierarchyViolationError("مدیران نمی‌توانند خودشان را حذف کنند.")
 
         else:
-            raise UnauthorizedRoleError("You do not have permission to delete users.")
+            raise UnauthorizedRoleError("شما مجوز حذف کاربران را ندارید.")
 
         self.user_repository.delete(request.target_user_id)
 

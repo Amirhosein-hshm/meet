@@ -24,7 +24,7 @@ def get_real_current_user(
         if user_id is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="token is invalid",
+                detail="توکن نامعتبر است",
                 headers={"WWW-Authenticate": "Bearer"},
             )
         user_repo = PostgresUserRepository(db)
@@ -32,18 +32,18 @@ def get_real_current_user(
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="user not found",
+                detail="کاربر یافت نشد",
             )
         return user
     except jwt.ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="token has expired",
+            detail="توکن منقضی شده است",
             headers={"WWW-Authenticate": "Bearer"},
         )
     except jwt.PyJWTError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="token verification failed",
+            detail="تأیید توکن ناموفق بود",
             headers={"WWW-Authenticate": "Bearer"},
         )

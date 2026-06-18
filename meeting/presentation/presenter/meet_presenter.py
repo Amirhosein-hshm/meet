@@ -28,7 +28,7 @@ class MeetPresenter:
         print(f"Formatted CreateMeetResponseOutput: {data}")
         return MutationResponseDTO(
             data=data,
-            message="Meeting created successfully.",
+            message="جلسه با موفقیت ایجاد شد.",
         )
 
     @staticmethod
@@ -111,14 +111,14 @@ class MeetPresenter:
         )
         return MutationResponseDTO(
             data=data,
-            message="Meeting updated successfully.",
+            message="جلسه با موفقیت به‌روزرسانی شد.",
         )
 
     @staticmethod
     def format_delete_response(dto: DeleteMeetResponseOutput) -> MutationResponseDTO:
         return MutationResponseDTO(
             data={"meet_hash": dto.meet_hash},
-            message="Meeting deleted successfully.",
+            message="جلسه با موفقیت حذف شد.",
         )
 
     @staticmethod

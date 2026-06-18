@@ -35,7 +35,7 @@ class UpdateUserRequestDTO(BaseModel):
             self.first_name, self.last_name, self.username, self.email,
             self.role is not None, self.is_active is not None
         ]):
-            raise ValueError("At least one field must be provided for update")
+            raise ValueError("حداقل یک فیلد باید برای به‌روزرسانی ارائه شود")
         return self
 
 

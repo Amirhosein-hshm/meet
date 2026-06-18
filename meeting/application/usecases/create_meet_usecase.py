@@ -42,15 +42,15 @@ class CreateMeetUseCase:
     def execute(self, request: CreateMeetRequestInput) -> CreateMeetResponseOutput:
         actor = self.user_repository.find_by_id(request.actor_id)
         if not actor:
-            raise UnauthorizedRoleError("Authenticated user not found.")
+            raise UnauthorizedRoleError("کاربر احراز هویت شده یافت نشد.")
 
         target_creator = actor
         if request.assign_to_username:
             target_user = self.user_repository.find_by_username(request.assign_to_username)
             if not target_user:
-                raise InvalidParticipantError(f"Target creator '{request.assign_to_username}' not found.")
+                raise InvalidParticipantError(f"سازنده هدف '{request.assign_to_username}' یافت نشد.")
             if target_user.role not in [Role.Host, Role.Admin, Role.SuperAdmin]:
-                raise InvalidParticipantError("Target creator must have a role of Host, Admin, or SuperAdmin.")
+                raise InvalidParticipantError("سازنده هدف باید نقش Host، Admin یا SuperAdmin داشته باشد.")
             target_creator = target_user
 
         
@@ -58,21 +58,21 @@ class CreateMeetUseCase:
 
         if request.actor_role == Role.Host:
             if is_assigning:
-                raise RoleHierarchyViolationError("Hosts can only create meetings for themselves.")
+                raise RoleHierarchyViolationError("میزبان‌ها فقط می‌توانند برای خود جلسه ایجاد کنند.")
                 
         elif request.actor_role == Role.Admin:
             if is_assigning:
                 if target_creator.role != Role.Host:
-                    raise RoleHierarchyViolationError("Admins can only assign meetings to Hosts.")
+                    raise RoleHierarchyViolationError("مدیران فقط می‌توانند جلسات را به میزبان‌ها اختصاص دهند.")
                     
         elif request.actor_role == Role.SuperAdmin:
             pass
             
         elif request.actor_role == Role.User:
-            raise UnauthorizedRoleError("Users do not have permission to create meetings.")
+            raise UnauthorizedRoleError("کاربران مجوز ایجاد جلسه را ندارند.")
             
         else:
-            raise UnauthorizedRoleError("Only SuperAdmins, Admins, or Hosts can create a meet.")
+            raise UnauthorizedRoleError("فقط سوپرادمین‌ها، مدیران یا میزبان‌ها می‌توانند جلسه ایجاد کنند.")
 
         participant_ids = []
         for username in request.guest_usernames:
@@ -83,7 +83,7 @@ class CreateMeetUseCase:
                 participant_ids.append(guest.id)
 
         if len(participant_ids) == 0:
-            raise InvalidParticipantError("At least one valid guest username must be provided.")
+            raise InvalidParticipantError("حداقل یک نام کاربری مهمان معتبر باید ارائه شود.")
 
         new_meet = Meet(
             title=request.title,

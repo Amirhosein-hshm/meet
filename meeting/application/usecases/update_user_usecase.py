@@ -53,20 +53,20 @@ def _validate_role_active_modification(
     if actor.role == Role.SuperAdmin:
         if new_role == Role.SuperAdmin and target.role != Role.SuperAdmin:
             raise RoleHierarchyViolationError(
-                "A SuperAdmin already exists. Cannot promote another user to SuperAdmin."
+                "یک سوپرادمین قبلاً وجود دارد. نمی‌توان کاربر دیگری را به سوپرادمین ارتقا داد."
             )
         return
 
     if actor.role == Role.Admin:
         if target.id == actor.id:
             raise RoleHierarchyViolationError(
-                "Admins cannot modify their own role or active status."
+                "مدیران نمی‌توانند نقش یا وضعیت فعال خود را تغییر دهند."
             )
         return
 
     if actor.role in (Role.Host, Role.User):
         raise RoleHierarchyViolationError(
-            "You are not allowed to modify role or active status."
+            "شما مجاز به تغییر نقش یا وضعیت فعال نیستید."
         )
 
 
@@ -77,37 +77,37 @@ class UpdateUserUseCase:
     def execute(self, request: UpdateUserRequestInput) -> UpdateUserResponseOutput:
         actor = self.user_repository.find_by_id(request.actor_id)
         if not actor:
-            raise UnauthorizedRoleError("Authenticated user not found.")
+            raise UnauthorizedRoleError("کاربر احراز هویت شده یافت نشد.")
 
         target = self.user_repository.find_by_id(request.target_user_id)
         if not target:
-            raise ResourceNotFoundError(f"User with id '{request.target_user_id}' not found.")
+            raise ResourceNotFoundError(f"کاربر با شناسه '{request.target_user_id}' یافت نشد.")
 
         if request.actor_role == Role.SuperAdmin:
             pass
 
         elif request.actor_role == Role.Admin:
             if target.id != request.actor_id and target.role in (Role.Admin, Role.SuperAdmin):
-                raise RoleHierarchyViolationError("Admins cannot update other Admins or the SuperAdmin.")
+                raise RoleHierarchyViolationError("مدیران نمی‌توانند مدیران دیگر یا سوپرادمین را به‌روزرسانی کنند.")
 
         elif request.actor_role in (Role.Host, Role.User):
             if target.id != request.actor_id:
-                raise RoleHierarchyViolationError("You can only update your own account.")
+                raise RoleHierarchyViolationError("شما فقط می‌توانید حساب خود را به‌روزرسانی کنید.")
 
         else:
-            raise UnauthorizedRoleError("You do not have permission to update users.")
+            raise UnauthorizedRoleError("شما مجوز به‌روزرسانی کاربران را ندارید.")
 
         _validate_role_active_modification(actor, target, request.role, request.is_active)
 
         if request.username is not None and request.username != target.username:
             existing = self.user_repository.find_by_username(request.username)
             if existing is not None and existing.id != target.id:
-                raise ConflictError("Username is already in use.")
+                raise ConflictError("نام کاربری قبلاً استفاده شده است.")
 
         if request.email is not None and request.email != target.email:
             existing = self.user_repository.find_by_email(request.email)
             if existing is not None and existing.id != target.id:
-                raise ConflictError("Email is already in use.")
+                raise ConflictError("ایمیل قبلاً استفاده شده است.")
 
         if request.first_name is not None:
             target.first_name = request.first_name

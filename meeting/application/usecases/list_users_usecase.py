@@ -43,7 +43,7 @@ class ListUsersUseCase:
 
     def execute(self, request: ListUsersRequestInput) -> ListUsersResponseOutput:
         if request.actor_role not in (Role.SuperAdmin, Role.Admin):
-            raise UnauthorizedRoleError("Only SuperAdmins and Admins can list users.")
+            raise UnauthorizedRoleError("فقط سوپرادمین‌ها و مدیران می‌توانند کاربران را لیست کنند.")
 
         users, total = self.user_repository.find_all_paginated(request.page, request.size, request.username)
 

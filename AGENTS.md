@@ -71,6 +71,7 @@ app.dependency_overrides[get_current_user_stub] = real_get_current_user_from_inf
 - **Type hints**: Required on all function signatures and dataclass/Pydantic fields.
 - **Imports**: Standard library → third-party → project modules. One import per line.
 - **Validation:** Use Pydantic `Field` and `@model_validator` in Request DTOs for swagger documentation and input validation.
+- **Persian Messages:** All user-facing success (`message`) and error (`message`/`detail`) strings MUST be written in Persian (Farsi). `error_code` values remain in English. This applies to all layers: domain exceptions, use cases, presenters, DTO validators, and infrastructure auth guards.
 
 ### 5. Request & Input Validation Standards (Pydantic & Security)
 

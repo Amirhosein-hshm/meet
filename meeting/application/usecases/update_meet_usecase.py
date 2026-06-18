@@ -48,11 +48,11 @@ class UpdateMeetUseCase:
     def execute(self, request: UpdateMeetRequestInput) -> UpdateMeetResponseOutput:
         meet = self.meet_repository.find_by_hash(request.meet_hash)
         if not meet:
-            raise ResourceNotFoundError(f"Meeting with hash '{request.meet_hash}' not found.")
+            raise ResourceNotFoundError(f"جلسه با هش '{request.meet_hash}' یافت نشد.")
 
         actor = self.user_repository.find_by_id(request.actor_id)
         if not actor:
-            raise UnauthorizedRoleError("Authenticated user not found.")
+            raise UnauthorizedRoleError("کاربر احراز هویت شده یافت نشد.")
 
         current_creator = self.user_repository.find_by_id(meet.creator_id)
         target_creator = current_creator
@@ -60,30 +60,30 @@ class UpdateMeetUseCase:
         if request.assign_to_username:
             target_user = self.user_repository.find_by_username(request.assign_to_username)
             if not target_user:
-                raise InvalidParticipantError(f"Target creator '{request.assign_to_username}' not found.")
+                raise InvalidParticipantError(f"سازنده هدف '{request.assign_to_username}' یافت نشد.")
             if target_user.role not in [Role.Host, Role.Admin, Role.SuperAdmin]:
-                raise InvalidParticipantError("Target creator must have a role of Host, Admin, or SuperAdmin.")
+                raise InvalidParticipantError("سازنده هدف باید نقش Host، Admin یا SuperAdmin داشته باشد.")
             target_creator = target_user
 
         is_reassigning = target_creator.id != meet.creator_id if request.assign_to_username else False
 
         if request.actor_role == Role.Host:
             if meet.creator_id != request.actor_id:
-                raise RoleHierarchyViolationError("Hosts can only update their own meetings.")
+                raise RoleHierarchyViolationError("میزبان‌ها فقط می‌توانند جلسات خود را به‌روزرسانی کنند.")
             if is_reassigning:
-                raise RoleHierarchyViolationError("Hosts cannot reassign meetings.")
+                raise RoleHierarchyViolationError("میزبان‌ها نمی‌توانند جلسات را دوباره اختصاص دهند.")
 
         elif request.actor_role == Role.Admin:
             if current_creator and current_creator.role in (Role.Admin, Role.SuperAdmin) and current_creator.id != request.actor_id:
-                raise RoleHierarchyViolationError("Admins cannot modify meetings created by other Admins or the SuperAdmin.")
+                raise RoleHierarchyViolationError("مدیران نمی‌توانند جلسات ایجاد شده توسط مدیران دیگر یا سوپرادمین را تغییر دهند.")
             if is_reassigning and target_creator.role != Role.Host:
-                raise RoleHierarchyViolationError("Admins can only reassign meetings to Hosts.")
+                raise RoleHierarchyViolationError("مدیران فقط می‌توانند جلسات را به میزبان‌ها دوباره اختصاص دهند.")
 
         elif request.actor_role == Role.SuperAdmin:
             pass
 
         else:
-            raise UnauthorizedRoleError("You do not have permission to update meetings.")
+            raise UnauthorizedRoleError("شما مجوز به‌روزرسانی جلسات را ندارید.")
 
         if request.title is not None:
             meet.title = request.title
@@ -98,7 +98,7 @@ class UpdateMeetUseCase:
                 if guest and guest.id != target_creator.id:
                     new_participant_ids.append(guest.id)
             if not new_participant_ids:
-                raise InvalidParticipantError("At least one valid guest username must be provided.")
+                raise InvalidParticipantError("حداقل یک نام کاربری مهمان معتبر باید ارائه شود.")
             meet.participants_ids = new_participant_ids
         if is_reassigning:
             meet.creator_id = target_creator.id

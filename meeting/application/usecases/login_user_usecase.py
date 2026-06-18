@@ -47,10 +47,10 @@ class LoginUseCase:
     def execute(self, request: LoginRequestInput) -> LoginResponseOutput:
         user = self.user_repository.find_by_username(request.username)
         if not user:
-            raise ResourceNotFoundError("Username not found.")
+            raise ResourceNotFoundError("نام کاربری یافت نشد.")
 
         if not self.password_hasher.verify_password(request.password, user.password_hash):
-            raise ForbiddenActionError("Password is not valid.")
+            raise ForbiddenActionError("رمز عبور معتبر نیست.")
 
 
         access_payload = {"sub": str(user.id), "username": user.username, "role": user.role.value, "type": "access" }

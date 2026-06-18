@@ -31,7 +31,7 @@ class GenerateLiveKitTokenUseCase:
     def execute(self, request: GenerateLiveKitTokenRequestInput) -> GenerateLiveKitTokenResponseOutput:
         meet = self.meet_repository.find_by_hash(request.meet_hash)
         if not meet:
-            raise ResourceNotFoundError("Meeting not found.")
+            raise ResourceNotFoundError("جلسه یافت نشد.")
 
         is_creator = meet.creator_id == request.actor_id
         is_participant = request.actor_id in meet.participants_ids
@@ -42,10 +42,10 @@ class GenerateLiveKitTokenUseCase:
             pass
         elif request.actor_role == Role.Host:
             if not is_creator and not is_participant:
-                raise ForbiddenActionError("You do not have access to this meeting.")
+                raise ForbiddenActionError("شما به این جلسه دسترسی ندارید.")
         elif request.actor_role == Role.User:
             if not is_participant:
-                raise ForbiddenActionError("You do not have access to this meeting.")
+                raise ForbiddenActionError("شما به این جلسه دسترسی ندارید.")
 
         room_admin = is_creator
         identity = str(request.actor_id)

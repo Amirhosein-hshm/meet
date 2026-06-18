@@ -30,27 +30,27 @@ class DeleteMeetUseCase:
     def execute(self, request: DeleteMeetRequestInput) -> DeleteMeetResponseOutput:
         meet = self.meet_repository.find_by_hash(request.meet_hash)
         if not meet:
-            raise ResourceNotFoundError(f"Meeting with hash '{request.meet_hash}' not found.")
+            raise ResourceNotFoundError(f"جلسه با هش '{request.meet_hash}' یافت نشد.")
 
         actor = self.user_repository.find_by_id(request.actor_id)
         if not actor:
-            raise UnauthorizedRoleError("Authenticated user not found.")
+            raise UnauthorizedRoleError("کاربر احراز هویت شده یافت نشد.")
 
         current_creator = self.user_repository.find_by_id(meet.creator_id)
 
         if request.actor_role == Role.Host:
             if meet.creator_id != request.actor_id:
-                raise RoleHierarchyViolationError("Hosts can only delete their own meetings.")
+                raise RoleHierarchyViolationError("میزبان‌ها فقط می‌توانند جلسات خود را حذف کنند.")
 
         elif request.actor_role == Role.Admin:
             if current_creator and current_creator.role in (Role.Admin, Role.SuperAdmin) and current_creator.id != request.actor_id:
-                raise RoleHierarchyViolationError("Admins cannot delete meetings created by other Admins or the SuperAdmin.")
+                raise RoleHierarchyViolationError("مدیران نمی‌توانند جلسات ایجاد شده توسط مدیران دیگر یا سوپرادمین را حذف کنند.")
 
         elif request.actor_role == Role.SuperAdmin:
             pass
 
         else:
-            raise UnauthorizedRoleError("You do not have permission to delete meetings.")
+            raise UnauthorizedRoleError("شما مجوز حذف جلسات را ندارید.")
 
         self.meet_repository.delete(meet.id)
 

@@ -16,6 +16,6 @@ class LogoutUseCase:
         success = self.refresh_token_repository.revoke(input_data.user_id, input_data.refresh_token)
     
         if not success:
-            raise ResourceNotFoundError("Invalid refresh token or already revoked")
+            raise ResourceNotFoundError("توکن تازه‌سازی نامعتبر یا قبلاً باطل شده است")
         
         return True

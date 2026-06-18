@@ -50,7 +50,7 @@ class GetMeetByHashUseCase:
     def execute(self, request: GetMeetByHashRequestInput) -> GetMeetByHashResponseOutput:
         meet = self.meet_repository.find_by_hash(request.meet_hash)
         if not meet:
-            raise ResourceNotFoundError(f"Meeting with hash '{request.meet_hash}' not found.")
+            raise ResourceNotFoundError(f"جلسه با هش '{request.meet_hash}' یافت نشد.")
 
         if request.actor_role not in (Role.SuperAdmin, Role.Admin):
             can_access = (
@@ -61,7 +61,7 @@ class GetMeetByHashUseCase:
                 and request.actor_id in meet.participants_ids
             )
             if not can_access:
-                raise ForbiddenActionError("You do not have access to this meeting.")
+                raise ForbiddenActionError("شما به این جلسه دسترسی ندارید.")
 
         users = self.user_repository.find_by_ids(meet.participants_ids)
         user_map = {u.id: u for u in users}

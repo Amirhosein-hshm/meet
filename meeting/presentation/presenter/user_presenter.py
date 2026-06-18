@@ -16,7 +16,7 @@ class UserPresenter:
     def format_register_response(dto: RegisterUserResponseOutput) -> MutationResponseDTO:
         return MutationResponseDTO(
             data=dto,
-            message="User registered successfully.",
+            message="کاربر با موفقیت ثبت نام کرد.",
         )
 
     @staticmethod
@@ -25,14 +25,14 @@ class UserPresenter:
             access_token=dto.access_token,
             refresh_token=dto.refresh_token,
             token_type="bearer",
-            message="Login successful.",
+            message="ورود با موفقیت انجام شد.",
         )
 
     @staticmethod
     def format_me_response(dto: GetMeResponseOutput) -> MutationResponseDTO:
         return MutationResponseDTO(
             data=dto,
-            message="User profile retrieved successfully.",
+            message="پروفایل کاربر با موفقیت دریافت شد.",
         )
 
     @staticmethod
@@ -67,7 +67,7 @@ class UserPresenter:
     def format_delete_user_response(dto: DeleteUserResponseOutput) -> MutationResponseDTO:
         return MutationResponseDTO(
             data={"user_id": dto.user_id},
-            message="User deleted successfully.",
+            message="کاربر با موفقیت حذف شد.",
         )
 
     @staticmethod
@@ -85,7 +85,7 @@ class UserPresenter:
         )
         return MutationResponseDTO(
             data=data,
-            message="User updated successfully.",
+            message="کاربر با موفقیت به‌روزرسانی شد.",
         )
 
     @staticmethod

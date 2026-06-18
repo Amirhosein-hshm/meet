@@ -25,7 +25,7 @@ class UpdateMeetRequestDTO(BaseModel):
     def validate_times(self):
         if self.start_time is not None and self.expires_at is not None:
             if self.expires_at <= self.start_time:
-                raise ValueError("expires_at must be after start_time")
+                raise ValueError("زمان پایان باید بعد از زمان شروع باشد")
         return self
 
 

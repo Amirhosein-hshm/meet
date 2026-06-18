@@ -33,7 +33,7 @@ class GetUserByUsernameUseCase:
     def execute(self, request: GetUserByUsernameRequestInput) -> GetUserByUsernameResponseOutput:
         user = self.user_repository.find_by_username(request.username)
         if not user:
-            raise ResourceNotFoundError(f"User with username '{request.username}' not found.")
+            raise ResourceNotFoundError(f"کاربر با نام کاربری '{request.username}' یافت نشد.")
 
         return GetUserByUsernameResponseOutput(
             id=user.id,

@@ -109,7 +109,7 @@ def logout_user(
 ):
     dto_request = LogoutRequestInput(user_id=current_user.id, refresh_token=request.refresh_token)
     use_case.execute(dto_request)
-    return {"detail": "Successfully logged out"}
+    return {"detail": "با موفقیت خارج شدید"}
 
 
 def get_user_invitations_use_case_stub() -> ListUserInvitationsUseCase:

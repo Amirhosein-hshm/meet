@@ -49,7 +49,7 @@ class JwtTokenService(ITokenService):
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
             return payload
         except jwt.ExpiredSignatureError:
-            raise ValueError("Token has expired")
+            raise ValueError("توکن منقضی شده است")
         except jwt.PyJWTError as e:
             print("JWT Error details:", str(e))
-            raise ValueError("Token is invalid")
+            raise ValueError("توکن نامعتبر است")

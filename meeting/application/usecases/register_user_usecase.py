@@ -44,11 +44,11 @@ class RegisterUserUseCase:
         # 1. Check if user exists
         existing_user = self.user_repository.find_by_username(request.username)
         if existing_user:
-            raise ConflictError("Username already in use")
+            raise ConflictError("نام کاربری قبلاً استفاده شده است")
 
         existing_user = self.user_repository.find_by_email(request.email)
         if existing_user:
-            raise ConflictError("Email already in use")
+            raise ConflictError("ایمیل قبلاً استفاده شده است")
 
         # 2. Hash password
         hashed_password = self.password_hasher.hash_password(request.password)

@@ -27,18 +27,18 @@ class RefreshTokenUseCase:
         try:
             payload = self.token_service.decode_token(input_data.refresh_token)
             if payload.get("type") != "refresh":
-                raise ForbiddenActionError("Invalid token type")
+                raise ForbiddenActionError("نوع توکن نامعتبر است")
 
             user_id = int(payload.get("sub"))
         except Exception as e:
-            raise ForbiddenActionError("Invalid or expired refresh token")
+            raise ForbiddenActionError("توکن تازه‌سازی نامعتبر یا منقضی شده است")
 
         if not self.refresh_token_repository.is_valid(user_id, input_data.refresh_token):
-            raise ForbiddenActionError("Refresh token has been revoked")
+            raise ForbiddenActionError("توکن تازه‌سازی باطل شده است")
 
         user = self.user_repository.find_by_id(user_id)
         if not user:
-            raise ResourceNotFoundError("User not found")
+            raise ResourceNotFoundError("کاربر یافت نشد")
         
         self.refresh_token_repository.revoke(user_id, input_data.refresh_token)
 

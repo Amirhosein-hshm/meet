@@ -26,7 +26,7 @@ class GetMeUseCase:
     def execute(self, request: GetMeRequestInput) -> GetMeResponseOutput:
         user = self.user_repository.find_by_id(request.user_id)
         if not user:
-            raise ResourceNotFoundError("User not found.")
+            raise ResourceNotFoundError("کاربر یافت نشد.")
         return GetMeResponseOutput(
             id=user.id,
             username=user.username,
